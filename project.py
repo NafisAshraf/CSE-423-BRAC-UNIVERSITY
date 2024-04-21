@@ -4,7 +4,7 @@ from OpenGL.GLU import *
 import random
 import time
 
-fps = 30
+fps = 45
 freeze=False
 lives = 3
 game_over=False
@@ -35,10 +35,11 @@ dx_ball_color = [1, 1, 1]
 dx_ball_deviation = 5
 bullets = []
 dx_stages_dictionary = {}
-current_stage = 1
+current_stage = 3
 
 dx_pattern_dictionary = {}
 powerups=["increase_ball_speed", "decrease_ball_speed", "increase_bat_size", "decrease_bat_size", "shooter", "unstoppable", "magnet"]
+# powerups=["unstoppable"]
 solid_prob = 0.2
 powerup_prob = 0.2
 
@@ -55,12 +56,12 @@ powerup_info_dict = {
         "value": -30
     },
     "increase_ball_speed": {
-        "color": [0, 0, 1],
+        "color": [0.9, 0.1, 0.1],
         "effect": "increase_ball_speed",
         "value": 1.5
     },
     "decrease_ball_speed": {
-        "color": [1, 1, 0],
+        "color": [0.1, 0.9, 0.1],
         "effect": "decrease_ball_speed",
         "value": 3
     },
@@ -88,7 +89,7 @@ def assign_powerup(probability):
     rand_num = random.randint(0, int(1/probability))
     if rand_num == 0:
         powerup = random.choice(powerups)
-        print(f"Assigned Powerup {powerup}")
+        # print(f"Assigned Powerup {powerup}")
         # dx_pattern_dictionary[(x, y)][1] = powerup
     else:
         powerup = None
@@ -172,7 +173,7 @@ def powerup_deactivate(powerup):
         dx_ball_speed = [dx_ball_speed[0]/val , dx_ball_speed[1]/val]
         print("Ball Speed Reset")
     elif powerup == powerup_deactivate_dict['decrease_ball_speed']:
-        val =  powerup_info_dict['increase_ball_speed']['value']
+        val =  powerup_info_dict['decrease_ball_speed']['value']
         dx_ball_speed = [dx_ball_speed[0]*val , dx_ball_speed[1]*val]
         print("Ball Speed Reset")
     elif powerup == powerup_deactivate_dict['unstoppable']:
@@ -353,12 +354,13 @@ def draw_powerup_falling():
             break
         elif has_collided(powerup_box, bat_box):
             if powerup_info['effect'] == "increase_bat_size":
-                dx_bat['width'] += powerup_info['value']
+                dx_bat['width'] = min(230, dx_bat['width'] + powerup_info['value'])
                 print("Bat size increased")
                 glutTimerFunc(10000, powerup_deactivate, powerup_deactivate_dict['increase_bat_size'])
 
             elif powerup_info['effect'] == "decrease_bat_size":
-                dx_bat['width'] += powerup_info['value']
+                dx_bat['width'] = max(50, dx_bat['width'] + powerup_info['value'])
+
                 print("Bat size decreased")
                 glutTimerFunc(10000, powerup_deactivate, powerup_deactivate_dict['decrease_bat_size']) 
 
@@ -493,7 +495,7 @@ def update_game_state():
                 fire_ball = False
             else:
                 hit_point = dx_ball_center[0]
-                bat_center = dx_bat['x1'] + dx_bat['width'] / 2
+                bat_center = dx_bat['x1'] + dx_bat['width'] 
                 offset = hit_point - bat_center
                 
                 influence = offset / (dx_bat['width'] / 2) 
@@ -631,7 +633,7 @@ def mouseListener(button, state, x, y):
                 reset()
                 print('Starting Over!')
             elif c_X >= 440 and (c_y >= 450 and c_y <= 500):
-                print('Goodbye! Score:')
+                print('Goodbye!')
                 glutLeaveMainLoop()
             elif (c_X >= 230 and c_X <= 270) and (c_y >= 450 and c_y <= 500):
                 print(freeze)
